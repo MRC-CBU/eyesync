@@ -13,9 +13,11 @@ entry](http://imaging.mrc-cbu.cam.ac.uk/meg/EyeTrackingWithMatlab).
 Please note that the code above is somewhat outdated - the release of the [SMI
 Matlab
 SDK](https://uk.mathworks.com/products/connections/product_detail/product_119541.html)
-makes interfacing with the eye tracker much easier (and enables ethernet
-communication, which is much preferable to the serial port connection these
-tools uses). Advanced users may prefer to use the SMI tools instead.
+makes it possible to interface with the eye tracker using ethernet, which is
+faster and much easier. If you need advanced eye tracking applications (e.g.,
+gaze-contingent displays), this will be a better approach. If you just want to
+calibrate, log trials and check fixation accuracy, the above serial-port code is
+probably good enough.
 
 # E-Prime
 We use SMI's SDK. See [this wiki entry](http://imaging.mrc-cbu.cam.ac.uk/meg/EyeTrackingWithEprime).
