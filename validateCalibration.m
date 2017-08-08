@@ -24,7 +24,8 @@
 % 	quitkey - ([escapekey]) key for aborting calibration
 % 		Use KbName('UnifyKeyNames') to get names for other keys
 % 13/4/2010 J Carlin
-function [ready,RMSdev, RMSdevdist, MeanDevXY] = validateCalibration(window,ET_serial,varargin)
+function [ready,RMSdev, RMSdevdist, MeanDevXY] = validateCalibration(window,ET_serial,PARAMS)
+
 
 % Screen settings
 sc = Screen('Resolution',window);
@@ -32,31 +33,15 @@ schw = [sc.width sc.height];
 
 KbName('UnifyKeyNames');
 
-% These are the default settings - some of these are unused but convenient
-% to have same as in calibrateEyeTracker so the same args can be passed to
-% each
-getArgs(varargin,...
-	{'npoints',13,...
-	'calibarea',schw,... % Full screen size
-	'bgcolour',[128 128 128],...
-	'targcolour',[0 0 0],...
-	'targsize',20, ...
-	'acceptkey',KbName('space'), ...
-	'quitkey',KbName('escape'), ...
-    'waitforvalid',1,...
-    'randompointorder',0,...
-    'autoaccept',1,...
-    'checklevel',2});
-
 % Draw background
-Screen(window,'FillRect',bgcolour);
+Screen(window,'FillRect',PARAMS.bgcolour);
 
 % Start validation
 fprintf(ET_serial,sprintf('ET_VLS'));
 ready = 0;
 readyonce = 0; % Extra check to catch second eye in bino mode
 ntries = 0;
-points = zeros(npoints,2);
+points = zeros(PARAMS.npoints,2);
 
 % Initialise output vars for graceful errors
 RMSdev = [];
@@ -79,7 +64,7 @@ while ~ready
 		k = find(keyCode);
 		k = k(1);
 		% Force acceptance of current point
-		if k == acceptkey
+		if k == PARAMS.acceptkey
 			fprintf('Accepting point...\n')
             %WaitSecs(.2); % Time to let go of key...
             % Now stop execution until the key is released
@@ -88,10 +73,10 @@ while ~ready
             end
             fprintf(ET_serial,'ET_ACC');
 		% Give up on calibration
-		elseif k == quitkey
+		elseif k == PARAMS.quitkey
 			fprintf('Calibration attempt aborted!\n')
 			fprintf(ET_serial,'ET_BRK');
-			break
+            break
 		end
     end
 
@@ -118,7 +103,7 @@ while ~ready
         if strcmp(command,'ET_CHG')
             % Coordinates for point
             xy = points(str2num(command_etc{2}),:)';
-            Screen('DrawDots',window,xy,targsize,targcolour);
+            Screen('DrawDots',window,xy,PARAMS.targsize,PARAMS.targcolour);
             Screen(window,'Flip');
             % Reset timeout counter
             ntries = 0;

@@ -29,34 +29,36 @@
 % VB script for E-Prime
 % 31/8/2012 update - refactored with better arguments through varargin
 
-function [ready,points] = calibrateEyeTracker(window,ET_serial,varargin)
+function [ready,points] = calibrateEyeTracker(window,ET_serial,PARAMS)
+% function [ready,points] = calibrateEyeTracker(window,ET_serial,varargin)
+
 
 % Screen settings
 sc = Screen('Resolution',window);
 schw = [sc.width sc.height];
 KbName('UnifyKeyNames');
 
-% These are the default settings
-getArgs(varargin,...
-	{'npoints',13,...
-	'calibarea',schw,... % Full screen size
-	'bgcolour',[128 128 128],...
-	'targcolour',[0 0 0],...
-	'targsize',5, ...
-	'acceptkey',KbName('space'), ...
-	'quitkey',KbName('escape'), ...
-    'waitforvalid',1,...
-    'randompointorder',0,...
-    'autoaccept',1,...
-    'checklevel',2});
+% % These are the default settings
+% getArgs(varargin,...
+% 	{'npoints',13,...
+% 	'calibarea',schw,... % Full screen size
+% 	'bgcolour',[128 128 128],...
+% 	'targcolour',[0 0 0],...
+% 	'targsize',20, ...
+% 	'acceptkey',KbName('space'), ...
+% 	'quitkey',KbName('escape'), ...
+%     'waitforvalid',1,...
+%     'randompointorder',0,...
+%     'autoaccept',1,...
+%     'checklevel',2});
 
 % Quick sanity check
-assert(any(npoints==[2,5,9,13]),...
+assert(any(PARAMS.npoints==[2,5,9,13]),...
     'SMI eye trackers only support 2,5,9 or 13 point calibration')
 
 % Start and stop calibration once. This somehow
 % solves a lot of problems
-fprintf(ET_serial,sprintf('ET_CAL %d',npoints));
+fprintf(ET_serial,sprintf('ET_CAL %d',PARAMS.npoints));
 fprintf(ET_serial,'ET_BRK');
 % Wait for various crap to go through
 w = 0;
@@ -67,13 +69,13 @@ while w == 0
 end
 
 % Draw background
-Screen(window,'FillRect',bgcolour);
+Screen(window,'FillRect',PARAMS.bgcolour);
 
 % Various calibration settings
-fprintf(ET_serial,sprintf('ET_CPA %d %d',0,waitforvalid));
-fprintf(ET_serial,sprintf('ET_CPA %d %d',1,randompointorder));
-fprintf(ET_serial,sprintf('ET_CPA %d %d',2,autoaccept));
-fprintf(ET_serial,sprintf('ET_LEV %d',checklevel));
+fprintf(ET_serial,sprintf('ET_CPA %d %d',0,PARAMS.waitforvalid));
+fprintf(ET_serial,sprintf('ET_CPA %d %d',1,PARAMS.randompointorder));
+fprintf(ET_serial,sprintf('ET_CPA %d %d',2,PARAMS.autoaccept));
+fprintf(ET_serial,sprintf('ET_LEV %d',PARAMS.checklevel));
 
 % Set calibration area (ie screen res)
 fprintf(ET_serial,sprintf('ET_CSZ %d %d',schw(1),schw(2)));
@@ -95,19 +97,19 @@ standardpoints = [640 512;
     928 743];
 
 % Scale up/down to match calibration area
-scaledpoints = standardpoints .* repmat(calibarea ...
+scaledpoints = standardpoints .* repmat(PARAMS.calibarea ...
     ./ [1280 1024],13,1);
 
 % If the calibration area doesn't match the screen res,
 % need to shift everything to centre
-%shift = @(xy) round(xy + ([sc.width sc.height]/2) - (calibarea/2));
+%shift = @(xy) round(xy + ([sc.width sc.height]/2) - (PARAMS.calibarea/2));
 
 % Shift the calibration points to centre on the screen
 shiftedpoints = round(scaledpoints + repmat(schw/2,13,1) ...
-    - repmat(calibarea/2,13,1));
+    - repmat(PARAMS.calibarea/2,13,1));
 
 % Set to appropriate npoints
-shiftedpoints = shiftedpoints(1:npoints,:);
+shiftedpoints = shiftedpoints(1:PARAMS.npoints,:);
 
 % Send custom points to eye tracker
 for p = 1:length(shiftedpoints)
@@ -115,14 +117,14 @@ for p = 1:length(shiftedpoints)
         shiftedpoints(p,1),shiftedpoints(p,2)));
 end
 % Start calibration
-fprintf(ET_serial,sprintf('ET_CAL %d',npoints));
+fprintf(ET_serial,sprintf('ET_CAL %d',PARAMS.npoints));
 
 
 ready = 0;
 ntries = 0;
 
 % Point coordinates go here - just to validate
-points = zeros(npoints,2);
+points = zeros(PARAMS.npoints,2);
 
 rc = 0;
 while ~ready
@@ -140,7 +142,7 @@ while ~ready
 		k = find(keyCode);
 		k = k(1);
 		% Force acceptance of current point
-		if k == acceptkey
+		if k == PARAMS.acceptkey
 			fprintf('Accepting point...\n')
             % Now stop execution until the key is released
             while KbCheck
@@ -148,10 +150,10 @@ while ~ready
             end
             fprintf(ET_serial,'ET_ACC');
 		% Give up on calibration
-		elseif k == quitkey
+		elseif k == PARAMS.quitkey
 			fprintf('Calibration attempt aborted!\n')
 			fprintf(ET_serial,'ET_BRK');
-			break
+ 			break
 		end
 	end
 
@@ -173,7 +175,7 @@ while ~ready
             case 'ET_CHG'
                 % Coordinates for point
                 xy = points(str2num(command_etc{2}),:)';
-                Screen('DrawDots',window,xy,targsize,targcolour);
+                Screen('DrawDots',window,xy,PARAMS.targsize,PARAMS.targcolour);
                 Screen(window,'Flip');
                 % Reset timeout counter
                 ntries = 0;
