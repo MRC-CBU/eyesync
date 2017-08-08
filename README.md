@@ -3,7 +3,10 @@ documentation of the CBU eye tracking setup, see the [CBU imaging
 wiki](http://imaging.mrc-cbu.cam.ac.uk/meg/EyeTracking).
 
 # Matlab (serial port communication)
-For documentation, see [this wiki
+For a high-level calibration script, see
+[eyeTrackerCalibration.m](eyeTrackerCalibration.m).
+
+For complete documentation, see [this wiki
 entry](http://imaging.mrc-cbu.cam.ac.uk/meg/EyeTrackingWithMatlab).
 
 # Matlab (ethernet communication)
