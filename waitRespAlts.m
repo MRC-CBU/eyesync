@@ -1,7 +1,7 @@
 % Wait for one of a list of keyboard presses. Return the index of the alt.
 % Also kills the run if escape is detected.
 % response = waitRespAlts(keylist,[esckey],[waitdur])
-function [resp is_quit] = waitRespAlts(keylist,esckey,waitdur)
+function resp = waitRespAlts(keylist,esckey,waitdur)
 
 KbName('UnifyKeyNames');
 
@@ -12,11 +12,8 @@ if ~exist('waitdur','var') || isempty(waitdur)
 	waitdur = Inf;
 end
 
-resp = nan;
-is_quit = 0;
-
 ts = GetSecs;
-% WaitSecs(.2); % Small delay to stop previous response carry-over
+WaitSecs(.2); % Small delay to stop previous response carry-over
 r = 0;
 while r == 0 && GetSecs - ts < waitdur
 	[keyisdown, secs, keyCode] = KbCheck;
@@ -29,8 +26,7 @@ while r == 0 && GetSecs - ts < waitdur
 			WaitSecs(.2);
 			return
 		elseif k == esckey
-            is_quit = 1;
-% 			error('ESC KEY DETECTED - experiment aborted')
+			error('ESC KEY DETECTED - experiment aborted')
 		end
 	end
 end
