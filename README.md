@@ -6,7 +6,7 @@ wiki](http://imaging.mrc-cbu.cam.ac.uk/meg/EyeTracking).
 For a high-level calibration script, see
 [fullCalibrationRoutine.m](fullCalibrationRoutine.m).
 
-For a minimal example, see [eyetrackingdemo.m](eyetrackingdemo.m).
+For a minimal example, see [eyetrackdemo.m](eyetrackdemo.m).
 
 For complete documentation, see [this wiki
 entry](http://imaging.mrc-cbu.cam.ac.uk/meg/EyeTrackingWithMatlab).
